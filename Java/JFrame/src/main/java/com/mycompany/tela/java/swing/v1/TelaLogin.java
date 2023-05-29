@@ -1,6 +1,5 @@
 package com.mycompany.tela.java.swing.v1;
 
-import LogsBibliotech.LogsBibliotech;
 import Alerta.Alerta;
 import ComponenteMaquina.*;
 import ConexaoMySQL.ConexaoSQL;
@@ -8,7 +7,6 @@ import EspecificacaoComponenteMaquina.EspecificacaoComponenteMaquina;
 import Metrica.*;
 import SituacaoAlerta.*;
 import TipoAlerta.*;
-
 
 // Autenticacao
 //import Autenticacao.Login;
@@ -34,7 +32,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
  * @author viniciuspereira
  */
 public class TelaLogin extends javax.swing.JFrame {
-    
+
     private String webHookUrl = "https://hooks.slack.com/services/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";
     private String oAuthUrl = "xoxb-5093777488852-5347584044833-rXCGMQtLQb13bfP1BAm08m8q";
     private String slackChannelUrl = "monitoramento-de-máquinas";
@@ -202,16 +200,14 @@ public class TelaLogin extends javax.swing.JFrame {
 
     private void buttonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLoginActionPerformed
 
-        
         //Aqui se passa a mensagem para o metodo
-        
         Looca looca = new Looca();
         Services d = new Services();
         Conexao conexao = new Conexao();
         Maquina maquina = new Maquina();
         Sistema sistema = looca.getSistema();
         Alerta alerta = new Alerta();
-        LogsBibliotech log = new LogsBibliotech();
+        //LogsBibliotech log = new LogsBibliotech();
 
         // Pegando dados da input
         String getLogin = iptLogin.getText();
@@ -266,20 +262,18 @@ public class TelaLogin extends javax.swing.JFrame {
             DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
 
             // Inserts de processador
-            
-            String processadorUsoFormatado = df.format(spec1.getUso_maximo());  
+            String processadorUsoFormatado = df.format(spec1.getUso_maximo());
             String processadorFrequenciaFormatada = df.format(spec1.getFreq_maxima());
 
-            
             con.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s','%s')",
-                    resultComp2.getId_componente_maquina(), result.getId_maquina(), spec1.getNumero_serial(), processadorUsoFormatado.replace(',','.'),processadorFrequenciaFormatada.replace(',','.') ));
+                    resultComp2.getId_componente_maquina(), result.getId_maquina(), spec1.getNumero_serial(), processadorUsoFormatado.replace(',', '.'), processadorFrequenciaFormatada.replace(',', '.')));
             // memoria
             double usoMaximoRam = spec2.getUso_maximo();
-            String usoMaximoFormatado2 = String.format("%.2f",usoMaximoRam);
-            System.out.println(usoMaximoFormatado2);   
+            String usoMaximoFormatado2 = String.format("%.2f", usoMaximoRam);
+            System.out.println(usoMaximoFormatado2);
             con.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s', null)",
-                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2.replace(',','.')));
- 
+                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2.replace(',', '.')));
+
             // Disco
             double usoMaximo3 = spec3.getUso_maximo();
             symbols.setDecimalSeparator('.');
@@ -295,9 +289,8 @@ public class TelaLogin extends javax.swing.JFrame {
             }
 
             con.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina, fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s', '%s', null)",
-        resultComp.getId_componente_maquina(), result.getId_maquina(), spec3.getNumero_serial(), usoMaximoFormatado3));
+                    resultComp.getId_componente_maquina(), result.getId_maquina(), spec3.getNumero_serial(), usoMaximoFormatado3));
 
-            
             // Pegando as últimas 3 especificações da lista para utilizar como fk
             List<EspecificacaoComponenteMaquina> spec = con.query("select id_especificacao from especificacao_componente_maquina order by id_especificacao desc;",
                     new BeanPropertyRowMapper(EspecificacaoComponenteMaquina.class));
@@ -338,7 +331,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
                 con.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", convertToString,
                         convertToString1, result.getId_maquina()));
-                
+
                 d.Alerta();
 
                 List<Metrica> metricaList = con.query("select id_metrica from metrica order by id_metrica desc", new BeanPropertyRowMapper(Metrica.class));
@@ -358,44 +351,38 @@ public class TelaLogin extends javax.swing.JFrame {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 90%! (CRITICO)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             tipo1.getId_tipo_alerta(), situacao3.getId_situacao_alerta()));
-                    
-                    try {
+
+                    /*try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                       
-                    
-                    
+                    }*/
                 } else if (d.processador.getUso() >= 70.0) {
-                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 70% (Risco alto)");
+                    sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 70% (Risco alto)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             tipo1.getId_tipo_alerta(), situacao2.getId_situacao_alerta()));
-                    
-                      try {
+
+                    /*try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                      
+                    }*/
                 } else if (d.processador.getUso() >= 50.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 50% (Risco moderado)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             tipo1.getId_tipo_alerta(), situacao1.getId_situacao_alerta()));
-                    
-                      try {
+
+                    /*try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                      
+                    }*/
                 } else {
 
                 }
@@ -406,22 +393,42 @@ public class TelaLogin extends javax.swing.JFrame {
                     e.printStackTrace();
                 }
 
-
-                if (d.processador.getUso() < 2.0) {
-                    sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor" + result.getSetor() +  " está sendo bloqueada por ociosidade (Ocioso)");
+                if (d.processador.getUso() <= 20.0) {
+                    sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor" + result.getSetor() + " está sendo bloqueada por ociosidade (Ocioso)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, %d, %d)", metrica.getId_metrica(),
-                            1,situacao.getId_situacao_alerta()));
-                    ProcessBuilder Alertar = new ProcessBuilder("/bin/bash", "-c", "notify-send ALERTA 'Tela está sendo bloqueada por inatividade'");
+                            1, situacao.getId_situacao_alerta()));
                     ProcessBuilder bloquearTela;
                     if (sistema.getSistemaOperacional().equalsIgnoreCase("Windows")) {
-                        bloquearTela = new ProcessBuilder("cmd.exe", "-c", "rundll32.exe user32.dll,LockWorkStation");
+                        
+                        String comando = "powershell.exe -Command \"Add-Type -TypeDefinition "
+                                + "\\\"using System; using System.Runtime.InteropServices; "
+                                + "public class MessageBox { [DllImport(\\\"user32.dll\\\", "
+                                + "EntryPoint=\\\"MessageBoxW\\\", CharSet=CharSet.Unicode)] "
+                                + "public static extern int Show(IntPtr hWnd, string text, "
+                                + "string caption, uint type); }\\\"; "
+                                + "MessageBox.Show(IntPtr.Zero, "
+                                + "\\\"Máquina bloqueada por inatividade!\\\", "
+                                + "\\\"Atenção\\\", 0x00000030);\"";
+
+                        // Cria o processo para executar o comando
+                        ProcessBuilder Alertar = new ProcessBuilder("cmd.exe", "/c", comando);
+                        bloquearTela = new ProcessBuilder("cmd.exe", "/c", "rundll32.exe user32.dll,LockWorkStation");
+                        try {
+                            Process alertar = Alertar.start();
+                        } catch (IOException ex) {
+                            Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
                     } else {
+                        
+                        ProcessBuilder Alertar = new ProcessBuilder("/bin/bash", "-c", "notify-send ALERTA 'Tela está sendo bloqueada por inatividade'");
                         bloquearTela = new ProcessBuilder("/bin/bash", "-c", "xdg-screensaver lock");
-                    }
-                    try {
-                        Process alertar = Alertar.start();
-                    } catch (IOException ex) {
-                        Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+                        try {
+                            Process alertar = Alertar.start();
+                        } catch (IOException ex) {
+                            Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
                     }
                     try {
                         Thread.sleep(5000);
@@ -480,7 +487,7 @@ public class TelaLogin extends javax.swing.JFrame {
         });
 
     }
-    
+
     //Metodo para enviar mensafem para o slack
     public void sendToSlack(String mensagem) {
 
