@@ -4,6 +4,7 @@ import Alerta.Alerta;
 import ComponenteMaquina.*;
 import ConexaoMySQL.ConexaoSQL;
 import EspecificacaoComponenteMaquina.EspecificacaoComponenteMaquina;
+import LogsBibliotech.Logs;
 import Metrica.*;
 import SituacaoAlerta.*;
 import TipoAlerta.*;
@@ -207,7 +208,7 @@ public class TelaLogin extends javax.swing.JFrame {
         Maquina maquina = new Maquina();
         Sistema sistema = looca.getSistema();
         Alerta alerta = new Alerta();
-        //LogsBibliotech log = new LogsBibliotech();
+        Logs log = new Logs();
 
         // Pegando dados da input
         String getLogin = iptLogin.getText();
@@ -343,46 +344,46 @@ public class TelaLogin extends javax.swing.JFrame {
                 SituacaoAlerta situacao2 = situacaoList.get(2);
                 SituacaoAlerta situacao3 = situacaoList.get(3);
 
-                List<TipoAlerta> tipoList = con.query("select id_tipo_alerta from tipo_alerta order by id_tipo_alerta desc", new BeanPropertyRowMapper(TipoAlerta.class));
-                TipoAlerta tipo = tipoList.get(0);
-                TipoAlerta tipo1 = tipoList.get(1);
+                //List<TipoAlerta> tipoList = con.query("select id_tipo_alerta from tipo_alerta order by id_tipo_alerta desc", new BeanPropertyRowMapper(TipoAlerta.class));
+                //TipoAlerta tipo = tipoList.get(0);
+                //TipoAlerta tipo1 = tipoList.get(1);
 
                 if (d.processador.getUso() >= 90.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 90%! (CRITICO)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
-                            tipo1.getId_tipo_alerta(), situacao3.getId_situacao_alerta()));
+                            2, situacao3.getId_situacao_alerta()));
 
-                    /*try {
+                    try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
+                    }
                 } else if (d.processador.getUso() >= 70.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 70% (Risco alto)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
-                            tipo1.getId_tipo_alerta(), situacao2.getId_situacao_alerta()));
+                            2, situacao2.getId_situacao_alerta()));
 
-                    /*try {
+                    try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
-                } else if (d.processador.getUso() >= 50.0) {
+                    }
+                } else if (d.processador.getUso() >= 5.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 50% (Risco moderado)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
-                            tipo1.getId_tipo_alerta(), situacao1.getId_situacao_alerta()));
+                            2, situacao1.getId_situacao_alerta()));
 
-                    /*try {
+                    try {
                         log.gerarLogs();
                     } catch (IOException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
+                    }
                 } else {
 
                 }
