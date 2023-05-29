@@ -269,10 +269,10 @@ public class TelaLogin extends javax.swing.JFrame {
                     resultComp2.getId_componente_maquina(), result.getId_maquina(), spec1.getNumero_serial(), processadorUsoFormatado.replace(',', '.'), processadorFrequenciaFormatada.replace(',', '.')));
             // memoria
             double usoMaximoRam = spec2.getUso_maximo();
-            String usoMaximoFormatado2 = String.format("%.2f", usoMaximoRam);
+            String usoMaximoFormatado2 = String.format("%.2f", usoMaximoRam).replace("," , ".");
             System.out.println(usoMaximoFormatado2);
             con.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s', null)",
-                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2.replace(',', '.')));
+                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2));
 
             // Disco
             double usoMaximo3 = spec3.getUso_maximo();
@@ -393,7 +393,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     e.printStackTrace();
                 }
 
-                if (d.processador.getUso() <= 20.0) {
+                if (d.processador.getUso() <= 2.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor" + result.getSetor() + " está sendo bloqueada por ociosidade (Ocioso)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, %d, %d)", metrica.getId_metrica(),
                             1, situacao.getId_situacao_alerta()));
