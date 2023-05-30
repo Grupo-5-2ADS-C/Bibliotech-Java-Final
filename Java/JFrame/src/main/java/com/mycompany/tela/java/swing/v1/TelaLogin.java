@@ -351,8 +351,12 @@ public class TelaLogin extends javax.swing.JFrame {
                 //List<TipoAlerta> tipoList = con.query("select id_tipo_alerta from tipo_alerta order by id_tipo_alerta desc", new BeanPropertyRowMapper(TipoAlerta.class));
                 //TipoAlerta tipo = tipoList.get(0);
                 //TipoAlerta tipo1 = tipoList.get(1);
+                
+                Double memoriaEmUso = d.memoria.getEmUso().doubleValue() / 1073741824;
+                Double memoriaTotal = d.memoria.getTotal().doubleValue() / 1073741824;
+                Double porcentagemMemoria = (memoriaEmUso * 100) / memoriaTotal;
 
-                if (d.processador.getUso() >= 90.0) {
+                if (d.processador.getUso() >= 90.0 || porcentagemMemoria >= 90.0 || Double.valueOf(d.getUsoDisco()) >= 90.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 90%! (CRITICO)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao3.getId_situacao_alerta()));
@@ -364,7 +368,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } else if (d.processador.getUso() >= 70.0) {
+                } else if (d.processador.getUso() >= 70.0 || porcentagemMemoria >= 70.0 || Double.valueOf(d.getUsoDisco()) >= 70.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 70% (Risco alto)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao2.getId_situacao_alerta()));
@@ -376,7 +380,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } else if (d.processador.getUso() >= 50.0) {
+                } else if (d.processador.getUso() >= 50.0 || porcentagemMemoria >= 50.0 || Double.valueOf(d.getUsoDisco()) >= 50.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 50% (Risco moderado)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao1.getId_situacao_alerta()));
