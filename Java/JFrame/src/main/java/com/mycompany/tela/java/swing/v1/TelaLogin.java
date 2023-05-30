@@ -376,7 +376,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } else if (d.processador.getUso() >= 5.0) {
+                } else if (d.processador.getUso() >= 50.0) {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 50% (Risco moderado)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao1.getId_situacao_alerta()));
