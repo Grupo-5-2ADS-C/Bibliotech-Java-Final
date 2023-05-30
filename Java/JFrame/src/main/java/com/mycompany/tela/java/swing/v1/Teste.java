@@ -20,9 +20,10 @@ public class Teste {
         Looca looca = new Looca();
         Sistema sistema = looca.getSistema();
 
-        MetricaRede metrica = new MetricaRede();
-                    
-        System.out.println(String.format(sistema.getSistemaOperacional()));
+        Double memoriaFormatada = d.memoria.getTotal().doubleValue() / 1073741824;
+        String convertToString = String.format("%.2f", memoriaFormatada).replace(",", ".");
+        
+        System.out.println(convertToString);
 
     }
 

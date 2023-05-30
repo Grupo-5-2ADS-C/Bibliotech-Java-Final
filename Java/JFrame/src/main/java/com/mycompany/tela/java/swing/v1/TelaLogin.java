@@ -231,8 +231,12 @@ public class TelaLogin extends javax.swing.JFrame {
             dispose();
 
             // Inserts na tabela componente_maquina
+            
+            Double memoriaFormatada = d.memoria.getTotal().doubleValue() / 1073741824;
+            String stringMemoriaFormatada = String.format("%.2f", memoriaFormatada).replace(",", ".");
+            
             ComponenteMaquina componente1 = new ComponenteMaquina("Processador", d.processador.getNome(), d.processador.getFabricante());
-            ComponenteMaquina componente2 = new ComponenteMaquina("Memoria ram", (d.memoria.getTotal().doubleValue() / 1048576), "null");
+            ComponenteMaquina componente2 = new ComponenteMaquina("Memoria ram", stringMemoriaFormatada, "null");
             ComponenteMaquina componente3 = new ComponenteMaquina("Disco", d.disco.getModelo(), "null");
 
             con.update(String.format("insert into componente_maquina (tipo,descricao,fabricante) values ('%s','%s','%s')",
