@@ -14,6 +14,9 @@ import TipoAlerta.*;
 //import Autenticacao.LoginRowMapper;
 import Maquina.*;
 import com.github.britooo.looca.api.core.Looca;
+import com.github.britooo.looca.api.group.rede.Rede;
+import com.github.britooo.looca.api.group.rede.RedeInterface;
+import com.github.britooo.looca.api.group.rede.RedeInterfaceGroup;
 import com.github.britooo.looca.api.group.sistema.Sistema;
 import com.github.seratch.jslack.Slack;
 import com.github.seratch.jslack.api.webhook.Payload;
@@ -210,6 +213,13 @@ public class TelaLogin extends javax.swing.JFrame {
         Alerta alerta = new Alerta();
         Logs log = new Logs();
 
+        Rede rede = looca.getRede();
+        RedeInterfaceGroup gruposDeInterface = rede.getGrupoDeInterfaces();
+        List<RedeInterface> interfaces = gruposDeInterface.getInterfaces();
+        RedeInterface redeInterface = interfaces.get(2);
+
+        RedeJar redeJar = new RedeJar();
+
         // Pegando dados da input
         String getLogin = iptLogin.getText();
         String getSenha = iptPassword.getText();
@@ -356,11 +366,13 @@ public class TelaLogin extends javax.swing.JFrame {
                     Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                double velocidade_download = d.metricaRede.getVelocidade_download();
-                double velocidade_upload = d.metricaRede.getVelocidade_upload();
+                //double download = redeJar.calcularTaxaDownload(redeInterface);
+                //double upload = redeJar.calcularTaxaUpload(redeInterface);
+                //DecimalFormat dfr = new DecimalFormat("0.00");
+                
 
-                String convertToString = df.format(velocidade_download).replace(",", ".");
-                String convertToString1 = df.format(velocidade_upload).replace(",", ".");
+                String convertToString = String.format("%.2f", d.getDownload());
+                String convertToString2 = String.format("%.2f", d.getUpload());
 
                 con.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos, tempo_de_sessão) VALUES (%s, %s, %d, %d, %d, %s, %d)",
                         hardware.getUsoCPU(), hardware.getFrequenciaCPU(), resultSpec2.getId_especificacao(), resultComp2.getId_componente_maquina(), result.getId_maquina(), hardware.getTotal_processos(), sistema.getTempoDeAtividade()));
@@ -373,19 +385,18 @@ public class TelaLogin extends javax.swing.JFrame {
 
                 conMysql.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos) VALUES (%s, null, %d, %d, %d, %s)",
                         (hardware.getUsoRAM()), resultSpec1Mysql.getId_especificacao(), resultComp1Mysql.getId_componente_maquina(), 2, hardware.getTotal_processos()));
-                
+
                 con.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos) VALUES ('%s', '%s', %d, %d, %d, %s)",
                         d.getUsoDisco(), d.getFreqDisco(), resultSpec.getId_especificacao(), resultComp.getId_componente_maquina(), result.getId_maquina(), hardware.getTotal_processos()));
 
                 conMysql.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos) VALUES ('%s', '%s', %d, %d, %d, %s)",
                         d.getUsoDisco(), d.getFreqDisco(), resultSpecMysql.getId_especificacao(), resultCompMysql.getId_componente_maquina(), 2, hardware.getTotal_processos()));
-                
-                con.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", convertToString,
-                        convertToString1, result.getId_maquina()));
-                
-                conMysql.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", convertToString,
-                        convertToString1, 2));
 
+                con.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", convertToString,
+                        convertToString2, result.getId_maquina()));
+
+                //conMysql.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", dfr.format(download),
+                //        dfr.format(upload), 2));
                 d.Alerta();
 
                 List<Metrica> metricaList = con.query("select id_metrica from metrica order by id_metrica desc", new BeanPropertyRowMapper(Metrica.class));
@@ -408,9 +419,9 @@ public class TelaLogin extends javax.swing.JFrame {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 90%! (CRITICO)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao3.getId_situacao_alerta()));
-                    
+
                     conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, 2, 1)", metrica.getId_metrica()));
-                    
+
                     try {
                         log.gerarLogs();
                     } catch (IOException ex) {
@@ -422,10 +433,10 @@ public class TelaLogin extends javax.swing.JFrame {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 70% (Risco alto)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao2.getId_situacao_alerta()));
-                    
+
                     conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, 2, 2)", metrica.getId_metrica(),
                             2, situacao2.getId_situacao_alerta()));
-                    
+
                     try {
                         log.gerarLogs();
                     } catch (IOException ex) {
@@ -437,7 +448,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor " + result.getSetor() + " está com uso de CPU acima de 50% (Risco moderado)");
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao1.getId_situacao_alerta()));
-                    
+
                     conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, 2, 3)", metrica.getId_metrica()));
 
                     try {
@@ -464,16 +475,16 @@ public class TelaLogin extends javax.swing.JFrame {
                     contadorOciosidade = 0;
                 }
                 if (contadorOciosidade >= 5) {
-                    
+
                     sendToSlack("Maquina com id " + result.getId_maquina() + " localizada no setor" + result.getSetor() + " está sendo bloqueada por ociosidade (Ocioso)");
-                    
+
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, %d, %d)", metrica.getId_metrica(),
                             1, situacao.getId_situacao_alerta()));
-                    
+
                     conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, 1, 4)", metrica.getId_metrica()));
-                    
+
                     ProcessBuilder bloquearTela;
-                    
+
                     if (sistema.getSistemaOperacional().equalsIgnoreCase("Windows")) {
 
                         String comando = "powershell.exe -Command \"Add-Type -TypeDefinition "
@@ -488,9 +499,9 @@ public class TelaLogin extends javax.swing.JFrame {
 
                         // Cria o processo para executar o comando
                         ProcessBuilder Alertar = new ProcessBuilder("cmd.exe", "/c", comando);
-                        
+
                         bloquearTela = new ProcessBuilder("cmd.exe", "/c", "rundll32.exe user32.dll,LockWorkStation");
-                        
+
                         try {
                             Process alertar = Alertar.start();
                         } catch (IOException ex) {
