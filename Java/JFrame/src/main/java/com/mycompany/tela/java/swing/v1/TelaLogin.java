@@ -312,7 +312,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2));
 
             conMysql.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s', null)",
-                    resultComp1Mysql.getId_componente_maquina(), 2, spec2.getNumero_serial(), usoMaximoFormatado2.replace(',', '.')));
+                    resultComp1Mysql.getId_componente_maquina(), 2, spec2.getNumero_serial(), stringMemoriaFormatada));
 
             // Disco
             double usoMaximo3 = spec3.getUso_maximo();
