@@ -405,7 +405,10 @@ public class TelaLogin extends javax.swing.JFrame {
 
                 List<Metrica> metricaList = con.query("select id_metrica from metrica order by id_metrica desc", new BeanPropertyRowMapper(Metrica.class));
                 Metrica metrica = metricaList.get(0);
-
+                
+                List<Metrica> metricaListSQL = conMysql.query("select id_metrica from metrica order by id_metrica desc", new BeanPropertyRowMapper(Metrica.class));
+                Metrica metricaSQL = metricaListSQL.get(0);
+                
                 List<SituacaoAlerta> situacaoList = con.query("select id_situacao_alerta from situacao_alerta order by id_situacao_alerta desc", new BeanPropertyRowMapper(SituacaoAlerta.class));
                 SituacaoAlerta situacao = situacaoList.get(0);
                 SituacaoAlerta situacao1 = situacaoList.get(1);
@@ -424,7 +427,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao3.getId_situacao_alerta()));
 
-                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, 2, 1)", metrica.getId_metrica()));
+                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Alerta crítico. Uso muito acima do esperado.', %d, 2, 1)", metricaSQL.getId_metrica()));
 
                     try {
                         log.gerarLogs();
@@ -438,7 +441,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao2.getId_situacao_alerta()));
 
-                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, 2, 2)", metrica.getId_metrica(),
+                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco alto. Uso acima do esperado.', %d, 2, 2)", metricaSQL.getId_metrica(),
                             2, situacao2.getId_situacao_alerta()));
 
                     try {
@@ -453,7 +456,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, %d, %d)", metrica.getId_metrica(),
                             2, situacao1.getId_situacao_alerta()));
 
-                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, 2, 3)", metrica.getId_metrica()));
+                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Risco moderado. Uso um pouco acima do esperado.', %d, 2, 3)", metricaSQL.getId_metrica()));
 
                     try {
                         log.gerarLogs();
@@ -485,7 +488,7 @@ public class TelaLogin extends javax.swing.JFrame {
                     con.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, %d, %d)", metrica.getId_metrica(),
                             1, situacao.getId_situacao_alerta()));
 
-                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, 1, 4)", metrica.getId_metrica()));
+                    conMysql.update(String.format("INSERT INTO alerta (texto_aviso, fk_metrica, fk_tipo_alerta, fk_situacao_alerta) values ('Máquina ociosa.', %d, 1, 4)", metricaSQL.getId_metrica()));
 
                     ProcessBuilder bloquearTela;
 
