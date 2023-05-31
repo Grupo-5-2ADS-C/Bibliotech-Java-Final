@@ -25,6 +25,7 @@ import com.github.seratch.jslack.api.webhook.WebhookResponse;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Comparator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 import java.util.logging.Level;
@@ -216,7 +217,8 @@ public class TelaLogin extends javax.swing.JFrame {
         Rede rede = looca.getRede();
         RedeInterfaceGroup gruposDeInterface = rede.getGrupoDeInterfaces();
         List<RedeInterface> interfaces = gruposDeInterface.getInterfaces();
-        RedeInterface redeInterface = interfaces.get(2);
+        RedeInterface redeDaVez = interfaces.stream().max(Comparator.comparing(RedeInterface::getBytesRecebidos)).orElse(null);
+
 
         RedeJar redeJar = new RedeJar();
 
@@ -359,20 +361,22 @@ public class TelaLogin extends javax.swing.JFrame {
             do {
 
                 Hardware hardware = new Hardware();
+                    double download = 0.0;
+                    double upload = 0.0;
 
                 try {
                     hardware = d.enviarDados();
+                    download = redeJar.calcularTaxaDownload(redeDaVez);
+                    upload = redeJar.calcularTaxaUpload(redeDaVez);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                //double download = redeJar.calcularTaxaDownload(redeInterface);
-                //double upload = redeJar.calcularTaxaUpload(redeInterface);
-                //DecimalFormat dfr = new DecimalFormat("0.00");
                 
 
-                String convertToString = String.format("%.2f", d.getDownload());
-                String convertToString2 = String.format("%.2f", d.getUpload());
+                
+                DecimalFormat dfr = new DecimalFormat("0.00");
+                
 
                 con.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos, tempo_de_sessão) VALUES (%s, %s, %d, %d, %d, %s, %d)",
                         hardware.getUsoCPU(), hardware.getFrequenciaCPU(), resultSpec2.getId_especificacao(), resultComp2.getId_componente_maquina(), result.getId_maquina(), hardware.getTotal_processos(), sistema.getTempoDeAtividade()));
@@ -392,11 +396,11 @@ public class TelaLogin extends javax.swing.JFrame {
                 conMysql.update(String.format("INSERT INTO metrica (uso, frequencia, fk_especificacao, fk_componente_maquina, fk_maquina, total_processos) VALUES ('%s', '%s', %d, %d, %d, %s)",
                         d.getUsoDisco(), d.getFreqDisco(), resultSpecMysql.getId_especificacao(), resultCompMysql.getId_componente_maquina(), 2, hardware.getTotal_processos()));
 
-                con.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", convertToString,
-                        convertToString2, result.getId_maquina()));
+                con.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", dfr.format(download).replace(',','.'),
+                        dfr.format(upload).replace(',','.'), result.getId_maquina()));
 
-                //conMysql.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", dfr.format(download),
-                //        dfr.format(upload), 2));
+                conMysql.update(String.format("INSERT INTO metrica_rede (velocidade_download, velocidade_upload, fk_maquina) values ('%s', '%s', %d)", dfr.format(download).replace(',','.'),
+                        dfr.format(upload).replace(',','.'), 2));
                 d.Alerta();
 
                 List<Metrica> metricaList = con.query("select id_metrica from metrica order by id_metrica desc", new BeanPropertyRowMapper(Metrica.class));

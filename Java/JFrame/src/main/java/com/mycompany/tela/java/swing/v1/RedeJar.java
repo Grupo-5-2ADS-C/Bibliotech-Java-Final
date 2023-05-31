@@ -13,6 +13,7 @@ import com.github.britooo.looca.api.group.rede.Rede;
 import com.github.britooo.looca.api.group.rede.RedeInterface;
 import com.github.britooo.looca.api.group.rede.RedeInterfaceGroup;
 import com.github.britooo.looca.api.group.sistema.Sistema;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,8 @@ public class RedeJar {
     Rede rede = looca.getRede();
     RedeInterfaceGroup gruposDeInterface = rede.getGrupoDeInterfaces();
     List<RedeInterface> interfaces = gruposDeInterface.getInterfaces();
-    RedeInterface redeDaVez = interfaces.get(5);
+    RedeInterface redeDaVez = interfaces.stream().max(Comparator.comparing(RedeInterface::getBytesRecebidos)).orElse(null);
+
     
     private static double byteConverterMega(double bytes) {
         return bytes / (1024 * 1024);
