@@ -4,7 +4,10 @@
  */
 package LogsBibliotech;
 
-import ConexaoMySQL.ConexaoSQL;
+import TipoAlerta.*;
+import com.github.britooo.looca.api.core.Looca;
+import com.github.britooo.looca.api.group.processador.Processador;
+import com.mycompany.tela.java.swing.v1.Conexao;
 import com.mycompany.tela.java.swing.v1.Hardware;
 import com.mycompany.tela.java.swing.v1.Services;
 import java.io.DataOutputStream;
@@ -17,9 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -34,8 +39,11 @@ public class Logs {
     }
     Services d = new Services();
         Hardware hardware = new Hardware();
-        ConexaoSQL conexao = new ConexaoSQL();
+        Conexao conexao = new Conexao();
         JdbcTemplate con = conexao.getConnection();
+        
+        Looca looca = new Looca();
+        Processador processador = new Processador();
 
         String diretorio = "C:\\Logs";
         String nomeArquivo = "LogsAlertas.txt";
@@ -85,13 +93,13 @@ public class Logs {
                 SimpleFormatter formatter = new SimpleFormatter();
                 fileHandler.setFormatter(formatter);
                 
-                if(d.alerta.getFk_tipo_alerta().equals(1)){ 
+                if(processador.getUso() <= 2.0){ 
                     
-                    logger.info("InformaÃ§Ã£o de alerta:" + d.alerta.getFk_tipo_alerta() + "(Ociosidade)");
+                    logger.info("InformaÃ§Ã£o de alerta:" + 1 + "(Ociosidade)");
                     
-                 }else{ 
+                 }else if(processador.getUso() >= 50.0){ 
                     
-                    logger.info("InformaÃ§Ã£o de alerta: " + d.alerta.getFk_tipo_alerta() + " (Mal uso)");
+                    logger.info("InformaÃ§Ã£o de alerta: " + 2 + " (Mal uso)");
                     
                 }
 
