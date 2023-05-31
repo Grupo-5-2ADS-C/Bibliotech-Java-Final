@@ -288,7 +288,7 @@ public class TelaLogin extends javax.swing.JFrame {
 
             // Coletando os dados das especificações dos componentes
             EspecificacaoComponenteMaquina spec1 = new EspecificacaoComponenteMaquina(d.processador.getId(), d.processador.getUso(), ((d.processador.getFrequencia().doubleValue()) / 1048576));
-            EspecificacaoComponenteMaquina spec2 = new EspecificacaoComponenteMaquina("null", (d.memoria.getTotal().doubleValue() / 1048576), null);
+            EspecificacaoComponenteMaquina spec2 = new EspecificacaoComponenteMaquina("null", (d.memoria.getTotal().doubleValue() / 1073741824), null);
             EspecificacaoComponenteMaquina spec3 = new EspecificacaoComponenteMaquina(d.disco.getSerial(), (d.discoGroup.getTamanhoTotal().doubleValue() / 1000000000), null);
 
             DecimalFormat decimalFormat = new DecimalFormat("0.00");
@@ -309,7 +309,7 @@ public class TelaLogin extends javax.swing.JFrame {
             String usoMaximoFormatado2 = String.format("%.2f", usoMaximoRam).replace(",", ".");
             System.out.println(usoMaximoFormatado2);
             con.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s', null)",
-                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), usoMaximoFormatado2));
+                    resultComp1.getId_componente_maquina(), result.getId_maquina(), spec2.getNumero_serial(), stringMemoriaFormatada));
 
             conMysql.update(String.format("insert into especificacao_componente_maquina (fk_componente_maquina ,fk_maquina, numero_serial, uso_maximo, freq_maxima) values (%d, %d, '%s','%s', null)",
                     resultComp1Mysql.getId_componente_maquina(), 2, spec2.getNumero_serial(), stringMemoriaFormatada));
